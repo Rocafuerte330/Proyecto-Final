@@ -4,17 +4,17 @@ import sys
 import matplotlib.pyplot as plt
 
 # import os
-# #Seleccionar un archivo desde navegador de archivos
-# def seleccionar_archivo():
-#     app = QApplication([])
-#     archivo, _ = QFileDialog.getOpenFileName(
-#         None,
-#         "Selecciona un archivo",
-#         "",
-#         "Todos los archivos (*);;Archivos de texto (*.txt)"
-#     )
-#     print("Archivo seleccionado:", archivo)
-#     return archivo
+#Seleccionar un archivo desde navegador de archivos
+def seleccionar_archivo():
+    app = QApplication([])
+    archivo, _ = QFileDialog.getOpenFileName(
+        None,
+        "Selecciona un archivo",
+        "",
+        "Todos los archivos (*);;Archivos de texto (*.txt)"
+    )
+    print("Archivo seleccionado:", archivo)
+    return archivo
 
 # #Seleccionar una carpeta desde navegador de archivos
 # def seleccionar_carpeta():
@@ -72,40 +72,46 @@ from PyQt5 import uic
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import Qt
 import cv2
-import numpy as np
+
+a = seleccionar_archivo()
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        # Cargar el archivo .ui
-        uic.loadUi("Experto_Imágenes.ui", self)
+        uic.loadUi("JPG_PNG_Experto_Imagenes.ui", self)
         
         # Cargar la imagen con OpenCV
-        self.ima = cv2.imread("cell2.jpg")
+        self.ima = cv2.imread(f"{a}")
+        height, width, _ = self.ima.shape
         
         # Convertir la imagen de OpenCV a formato compatible con Qt
-        height, width, channel = self.ima.shape
-        bytes_per_line = 3 * width
-        q_img = QImage(self.ima.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+        bytesPerLine = 3 * width
+        q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
         
         # Crear un QLabel para mostrar la imagen
         self.label_imagen = QLabel(self.campo_grafico)
-        self.label_imagen.setPixmap(QPixmap.fromImage(q_img))
-        self.label_imagen.setScaledContents(True)
-        self.label_imagen.setGeometry(self.campo_grafico.geometry())
-
+        
+        # Redimensionar la imagen proporcionalmente para que se ajuste al ancho del campo_grafico
+        pixmap = QPixmap.fromImage(q_img)
+        pixmap = pixmap.scaled(self.campo_grafico.width(), self.campo_grafico.height(), Qt.KeepAspectRatio)
+        self.label_imagen.setPixmap(pixmap)
+        
+        # Configurar el QLabel
+        self.label_imagen.setScaledContents(False)
+        self.label_imagen.setGeometry(0, 0, self.campo_grafico.width(), self.campo_grafico.height())
+        self.label_imagen.setAlignment(Qt.AlignCenter)
+        
         # Establecer el texto del QLabel desde Python
-        self.label_2.setText("""1.++++++++++++++++++++
+        self.label_2.setText(f"""1.++++++++++++++++++++
 2.++++++++++++++++++++
-3.++++++++++++++++++++
-4.++++++++++++++++++++
+height: {height}
+width: {width}
 5.++++++++++++++++++++
-6.++++++++++++++++++++
-7.++++++++++++++++++++
+Aquí aparece la infor-
+mación de la imagen.
 8.++++++++++++++++++++
 2.++++++++++++++++++++
-3.++++++++++++++++++++
-""")
+3.++++++++++++++++++++""")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

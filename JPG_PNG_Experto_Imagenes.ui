@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1710</width>
+    <height>972</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>280</y>
+      <y>510</y>
       <width>191</width>
-      <height>251</height>
+      <height>391</height>
      </rect>
     </property>
     <property name="title">
@@ -32,7 +32,7 @@
        <x>10</x>
        <y>30</y>
        <width>171</width>
-       <height>211</height>
+       <height>351</height>
       </rect>
      </property>
      <property name="font">
@@ -53,7 +53,7 @@
       <x>10</x>
       <y>10</y>
       <width>191</width>
-      <height>261</height>
+      <height>501</height>
      </rect>
     </property>
     <property name="title">
@@ -65,7 +65,7 @@
        <x>0</x>
        <y>20</y>
        <width>191</width>
-       <height>241</height>
+       <height>481</height>
       </rect>
      </property>
     </widget>
@@ -74,9 +74,9 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>30</y>
-      <width>561</width>
-      <height>321</height>
+      <y>20</y>
+      <width>1491</width>
+      <height>721</height>
      </rect>
     </property>
    </widget>
@@ -84,7 +84,7 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>360</y>
+      <y>750</y>
       <width>60</width>
       <height>16</height>
      </rect>
@@ -104,7 +104,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>360</y>
+      <y>750</y>
       <width>41</width>
       <height>16</height>
      </rect>
@@ -117,7 +117,7 @@
     <property name="geometry">
      <rect>
       <x>380</x>
-      <y>360</y>
+      <y>750</y>
       <width>71</width>
       <height>16</height>
      </rect>
@@ -130,7 +130,7 @@
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>360</y>
+      <y>750</y>
       <width>51</width>
       <height>21</height>
      </rect>
@@ -140,7 +140,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>360</y>
+      <y>750</y>
       <width>51</width>
       <height>21</height>
      </rect>
@@ -150,7 +150,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>390</y>
+      <y>780</y>
       <width>141</width>
       <height>32</height>
      </rect>
@@ -163,7 +163,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>420</y>
+      <y>810</y>
       <width>191</width>
       <height>32</height>
      </rect>
@@ -176,7 +176,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>450</y>
+      <y>840</y>
       <width>113</width>
       <height>32</height>
      </rect>
@@ -189,7 +189,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>480</y>
+      <y>870</y>
       <width>141</width>
       <height>32</height>
      </rect>
@@ -204,10 +204,16 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1710</width>
      <height>42</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuCargar_Imagen">
+    <property name="title">
+     <string>Cargar Imagen</string>
+    </property>
+   </widget>
+   <addaction name="menuCargar_Imagen"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionjpg_png">
