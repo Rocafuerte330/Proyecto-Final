@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QToolButton" name="toolButton">
+   <widget class="QToolButton" name="Button_JPG_PNG">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -61,7 +61,7 @@
      <string>Seleccione el tipo de imagen con que desea trabajar</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="toolButton_2">
+   <widget class="QToolButton" name="Button_DICOM">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -74,7 +74,7 @@
      <string>DICOM</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="toolButton_3">
+   <widget class="QToolButton" name="Button_NIFTI">
     <property name="geometry">
      <rect>
       <x>240</x>

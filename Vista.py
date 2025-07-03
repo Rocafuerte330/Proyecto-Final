@@ -57,8 +57,37 @@ class menu_Imagenes(QMainWindow):
     def __init__(self,ppal=None):
         super().__init__(ppal)
         loadUi("Menu_Experto_Imagenes.ui",self) 
+        self.setup()
+
+    def setup(self):
+        self.Button_JPG_PNG.clicked.connect(self.abrir_menu_JPG_PNG)
+        self.Button_DICOM.clicked.connect(self.abrir_menu_DICOM)
+
+
+    def abrir_menu_JPG_PNG(self):
+        menuJPG_PNG = menu_JPG_PNG(self)
+        self.hide()
+        menuJPG_PNG.show()
+
+    def abrir_menu_DICOM(self):
+        menuDICOM = menu_DICOM(self)
+        self.hide()
+        menuDICOM.show()
 
 class menu_Senales(QMainWindow):
     def __init__(self,ppal=None):
         super().__init__(ppal)
         loadUi("Menu_Experto-Senales.ui",self) 
+        self.setup()
+
+class menu_JPG_PNG(QMainWindow):
+    def __init__(self,ppal=None):
+        super().__init__(ppal)
+        loadUi("JPG_PNG_Experto_Imagenes.ui",self) 
+
+class menu_DICOM(QMainWindow):
+    def __init__(self,ppal=None):
+        super().__init__(ppal)
+        loadUi("DICOM_Experto_Imagenes.ui",self) 
+        
+        
