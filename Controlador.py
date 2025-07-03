@@ -2,7 +2,8 @@
 from Modelo import *
 from Vista import *
 import sys
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QFileDialog
+import matplotlib.pyplot as plt
 
 class Coordinador():
     # El coordinador debe tenet acceso a obejetos de ambas clases (Modelo y vista)
@@ -16,7 +17,7 @@ class Coordinador():
         self.__modelo.setLogin(login)
         self.__modelo.setPasswd(passwd)
         return self.__modelo.ValidarUsuario(login, passwd)
-
+        
 def main():
     app = QApplication(sys.argv)
     vista = VentanaLogin()

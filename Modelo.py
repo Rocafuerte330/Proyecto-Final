@@ -43,7 +43,7 @@ class BaseDatos(object):
                 break
             else:
                 d = False
-                
+
         if (c and d) == True:
             sql = f"SELECT tipo_usuario FROM Usuarios WHERE nombre_usuario = '{login}' AND contrasena = '{passwd}'"
             cursor.execute(sql)
