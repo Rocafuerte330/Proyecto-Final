@@ -102,16 +102,16 @@ class MainWindow(QMainWindow):
         self.campo_grafico.setAlignment(Qt.AlignCenter)
         
         # Establecer el texto del QLabel desde Python
-#         self.label_2.setText(f"""1.++++++++++++++++++++
-# 2.++++++++++++++++++++
-# height: {height}
-# width: {width}
-# 5.++++++++++++++++++++
-# Aquí aparece la infor-
-# mación de la imagen.
-# 8.++++++++++++++++++++
-# 2.++++++++++++++++++++
-# 3.++++++++++++++++++++""")
+        self.label_2.setText(f"""1.++++++++++++++++++++
+2.++++++++++++++++++++
+height: {height}
+width: {width}
+5.++++++++++++++++++++
+Aquí aparece la infor-
+mación de la imagen.
+8.++++++++++++++++++++
+2.++++++++++++++++++++
+3.++++++++++++++++++++""")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

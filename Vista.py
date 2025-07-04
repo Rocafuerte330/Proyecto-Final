@@ -24,10 +24,10 @@ class VentanaLogin(QDialog):
 # Si probamos veremos que la ventana se cerrará, algo que no queremos para el ejemplo, por lo que será mejor sobre-escribir los
 # métodos accept y reject que por defecto cierran la ventana
     def accept(self):
-        login = self.Campo_User.text()
-        passwd = self.Campo_Passwd.text()
-        # login = "Jose.R"
-        # passwd = "loleljuego_01"
+        # login = self.Campo_User.text()
+        # passwd = self.Campo_Passwd.text()
+        login = "Jose.R"
+        passwd = "loleljuego_01"
 # Pasamos la información al controlaror
         resultado = self.__controlador.validarUsuario(login,passwd)
 # Imprimimos el resultado de la operación
@@ -100,6 +100,7 @@ class menu_JPG_PNG(QMainWindow):
         self.Button_Cargar_Ima.clicked.connect(self.cargar_Ima)
         self.Button_CargarBD.clicked.connect(self.mostrar_lista)
         self.List_imgs.clicked.connect(self.mostrar_ima)
+        self.Button_Cambio_Color.clicked.connect(self.cambio_color)
 
     def setControlador(self, c):
         self.__controlador = c
@@ -150,8 +151,69 @@ class menu_JPG_PNG(QMainWindow):
             
             # Asegurarse de que el QLabel se muestra correctamente
             label.show()
+            self.Info_ima_Text.setText(f"""- Tamaño, producto
+de f*col*can: {self.ima.size}
+- height: {height}
+- width: {width}
+- Tipo: {self.ima.dtype}
+- Tamaño, D1: {len(self.ima)}
+- Tamaño, D2: {len(self.ima[0,:,:])}
+- Tamaño, D3: {len(self.ima[0,0,:])}
+- F, C, c: {self.ima.shape}
+- Media: {self.ima.mean()}
+- Desviación
+Estandar: {self.ima.std()}
+- Minimo: {self.ima.min()}
+- Maximo: {self.ima.max()}""")
         else:
-            print("No se pudo cargar la imagen.")
+            self.Info_ima_Text.setText("No se pudo cargar la imagen.")
+    index = True
+
+    def cambio_color(self):
+        if self.ima is not None:
+            # Convertir la imagen de BGR a RGB
+            img_ = cv2.cvtColor(self.ima, cv2.COLOR_BGR2RGB)
+            
+            # Actualizar self.ima con la imagen convertida
+            self.ima = img_
+            
+            # Actualizar el campo_grafico con la nueva imagen
+            height, width, channel = self.ima.shape
+            bytesPerLine = 3 * width
+            q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.campo_grafico.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            
+            # Actualizar el QLabel en campo_grafico
+            label = QLabel(self.campo_grafico)
+            label.setPixmap(pixmap)
+            label.setAlignment(Qt.AlignCenter)
+            label.setGeometry(self.campo_grafico.rect())
+            
+            # Eliminar cualquier otro QLabel existente en campo_grafico
+            for widget in self.campo_grafico.findChildren(QLabel):
+                if widget != label:
+                    widget.deleteLater()
+            
+            # Asegurarse de que el QLabel se muestra correctamente
+            label.show()
+            
+            # Actualizar la información de la imagen
+            self.Info_ima_Text.setText(f"""- Tamaño, producto de f*col*can: {self.ima.size}
+- height: {height}
+- width: {width}
+- Tipo: {self.ima.dtype}
+- Tamaño, D1: {len(self.ima)}
+- Tamaño, D2: {len(self.ima[0,:,:])}
+- Tamaño, D3: {len(self.ima[0,0,:])}
+- F, C, c: {self.ima.shape}
+- Media: {self.ima.mean()}
+- Desviación Estandar: {self.ima.std()}
+- Minimo: {self.ima.min()}
+- Maximo: {self.ima.max()}""")
+        else:
+            self.Info_ima_Text.setText("No hay ninguna imagen cargada.")
+
         
         
 
