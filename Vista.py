@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from PyQt5.QtCore import QStringListModel, Qt
 from PyQt5.QtGui import QImage, QPixmap
-
+import numpy as np
 
 
 class VentanaLogin(QDialog):
@@ -101,6 +101,7 @@ class menu_JPG_PNG(QMainWindow):
         self.Button_CargarBD.clicked.connect(self.mostrar_lista)
         self.List_imgs.clicked.connect(self.mostrar_ima)
         self.Button_Cambio_Color.clicked.connect(self.cambio_color)
+        self.Button_Ecu_Ima.clicked.connect(self.ecualizacion)
 
     def setControlador(self, c):
         self.__controlador = c
@@ -214,8 +215,35 @@ Estandar: {self.ima.std()}
         else:
             self.Info_ima_Text.setText("No hay ninguna imagen cargada.")
 
-        
-        
+    def ecualizacion(self):
+        if self.ima is not None:
+            imgG=cv2.cvtColor(self.ima, cv2.COLOR_RGB2GRAY)
+            img0=np.array(imgG, np.dtype('float32'))
+            ima1=img0-np.min(img0)
+            ima1=ima1*255/np.max(img0) 
+
+            self.ima = ima1
+            
+            # Actualizar el campo_grafico con la nueva imagen
+            height, width = self.ima.shape
+            bytesPerLine = 3 * width
+            q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.campo_grafico.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            
+            # Actualizar el QLabel en campo_grafico
+            label = QLabel(self.campo_grafico)
+            label.setPixmap(pixmap)
+            label.setAlignment(Qt.AlignCenter)
+            label.setGeometry(self.campo_grafico.rect())
+            
+            # Eliminar cualquier otro QLabel existente en campo_grafico
+            for widget in self.campo_grafico.findChildren(QLabel):
+                if widget != label:
+                    widget.deleteLater()
+            
+            # Asegurarse de que el QLabel se muestra correctamente
+            label.show()
 
 class menu_DICOM(QMainWindow):
     def __init__(self,ppal=None):
