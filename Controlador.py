@@ -18,6 +18,16 @@ class Coordinador():
         self.__modelo.setPasswd(passwd)
         return self.__modelo.ValidarUsuario(login, passwd)
         
+    def guardar_Ruta(self, Ruta):
+        self.__modelo.guardar_Ruta(Ruta)
+    
+    def mostrar_lista(self):
+        return self.__modelo.mostrar_lista()
+    
+    def mostrar_ima(self, nombre_ima):
+        Ruta_ima = self.__modelo.mostrar_ima(nombre_ima)
+        ima = cv2.imread(Ruta_ima)
+        return ima
 def main():
     app = QApplication(sys.argv)
     vista = VentanaLogin()

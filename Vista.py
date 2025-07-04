@@ -1,10 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QDialog, QMainWindow, QFileDialog, QListView, QLabel
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
 from Modelo import *
 import time
 import cv2
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.pyplot as plt
+from PyQt5.QtCore import QStringListModel, Qt
+from PyQt5.QtGui import QImage, QPixmap
+
 
 
 class VentanaLogin(QDialog):
@@ -94,6 +98,8 @@ class menu_JPG_PNG(QMainWindow):
 
     def setup(self):
         self.Button_Cargar_Ima.clicked.connect(self.cargar_Ima)
+        self.Button_CargarBD.clicked.connect(self.mostrar_lista)
+        self.List_imgs.clicked.connect(self.mostrar_ima)
 
     def setControlador(self, c):
         self.__controlador = c
@@ -105,6 +111,49 @@ class menu_JPG_PNG(QMainWindow):
             #Leemos la imagen con el etodo de opencv
             dataimg =  cv2.imread(archivo_cargado)
             dataimg = cv2.cvtColor(dataimg, cv2.COLOR_BGR2RGB)
+            self.__controlador.guardar_Ruta(archivo_cargado)
+
+    def mostrar_lista(self):
+        list = self.__controlador.mostrar_lista()
+        model = QStringListModel()
+        model.setStringList(list)
+        self.List_imgs.setModel(model)
+        # print(list)
+
+    def mostrar_ima(self, index):
+    # Obtener el nombre del elemento seleccionado
+        self.img = self.List_imgs.model().data(index, Qt.DisplayRole)
+        
+        # Obtener la imagen asociada usando el controlador
+        self.ima = self.__controlador.mostrar_ima(self.img)
+        
+        if self.ima is not None:
+            # Convertir la imagen de OpenCV a formato compatible con Qt
+            height, width, channel = self.ima.shape
+            bytesPerLine = 3 * width
+            q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+            
+            # Redimensionar la imagen para que se ajuste al tamaño del campo_grafico
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.campo_grafico.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            
+            # Crear un QLabel como hijo del campo_grafico y mostrar la imagen
+            label = QLabel(self.campo_grafico)
+            label.setPixmap(pixmap)
+            label.setAlignment(Qt.AlignCenter)
+            label.setGeometry(self.campo_grafico.rect())
+            
+            # Eliminar cualquier otro QLabel existente en campo_grafico
+            for widget in self.campo_grafico.findChildren(QLabel):
+                if widget != label:
+                    widget.deleteLater()
+            
+            # Asegurarse de que el QLabel se muestra correctamente
+            label.show()
+        else:
+            print("No se pudo cargar la imagen.")
+        
+        
 
 class menu_DICOM(QMainWindow):
     def __init__(self,ppal=None):

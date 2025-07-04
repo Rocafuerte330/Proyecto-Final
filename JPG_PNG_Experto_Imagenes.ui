@@ -29,9 +29,9 @@
     <widget class="QLabel" name="Info_ima_Text">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>0</x>
        <y>30</y>
-       <width>171</width>
+       <width>191</width>
        <height>351</height>
       </rect>
      </property>
@@ -43,7 +43,7 @@
       </font>
      </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string>Información de la imagen</string>
      </property>
     </widget>
    </widget>
@@ -53,7 +53,7 @@
       <x>10</x>
       <y>10</y>
       <width>191</width>
-      <height>501</height>
+      <height>471</height>
      </rect>
     </property>
     <property name="title">
@@ -65,7 +65,7 @@
        <x>0</x>
        <y>20</y>
        <width>191</width>
-       <height>481</height>
+       <height>451</height>
       </rect>
      </property>
     </widget>
@@ -209,6 +209,19 @@
     </property>
     <property name="text">
      <string>Cargar Nueva Imagen</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_CargarBD">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>480</y>
+      <width>211</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cargar Base de Datos</string>
     </property>
    </widget>
   </widget>

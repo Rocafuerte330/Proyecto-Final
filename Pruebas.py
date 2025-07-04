@@ -3,7 +3,7 @@ import cv2
 import sys
 import matplotlib.pyplot as plt
 
-# import os
+import os
 #Seleccionar un archivo desde navegador de archivos
 def seleccionar_archivo():
     app = QApplication([])
@@ -89,32 +89,33 @@ class MainWindow(QMainWindow):
         q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
         
         # Crear un QLabel para mostrar la imagen
-        self.label_imagen = QLabel(self.campo_grafico)
+        self.campo_grafico = QLabel(self.campo_grafico)
         
         # Redimensionar la imagen proporcionalmente para que se ajuste al ancho del campo_grafico
         pixmap = QPixmap.fromImage(q_img)
         pixmap = pixmap.scaled(self.campo_grafico.width(), self.campo_grafico.height(), Qt.KeepAspectRatio)
-        self.label_imagen.setPixmap(pixmap)
+        self.campo_grafico.setPixmap(pixmap)
         
         # Configurar el QLabel
-        self.label_imagen.setScaledContents(False)
-        self.label_imagen.setGeometry(0, 0, self.campo_grafico.width(), self.campo_grafico.height())
-        self.label_imagen.setAlignment(Qt.AlignCenter)
+        self.campo_grafico.setScaledContents(False)
+        self.campo_grafico.setGeometry(0, 0, self.campo_grafico.width(), self.campo_grafico.height())
+        self.campo_grafico.setAlignment(Qt.AlignCenter)
         
         # Establecer el texto del QLabel desde Python
-        self.label_2.setText(f"""1.++++++++++++++++++++
-2.++++++++++++++++++++
-height: {height}
-width: {width}
-5.++++++++++++++++++++
-Aquí aparece la infor-
-mación de la imagen.
-8.++++++++++++++++++++
-2.++++++++++++++++++++
-3.++++++++++++++++++++""")
+#         self.label_2.setText(f"""1.++++++++++++++++++++
+# 2.++++++++++++++++++++
+# height: {height}
+# width: {width}
+# 5.++++++++++++++++++++
+# Aquí aparece la infor-
+# mación de la imagen.
+# 8.++++++++++++++++++++
+# 2.++++++++++++++++++++
+# 3.++++++++++++++++++++""")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ventana = MainWindow()
     ventana.show()
     sys.exit(app.exec_())
+
