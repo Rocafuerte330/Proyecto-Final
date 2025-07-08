@@ -66,56 +66,76 @@ def seleccionar_archivo():
 
 # mostrar_mensaje()
 
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
-from PyQt5 import uic
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import Qt
+# import sys
+# from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
+# from PyQt5 import uic
+# from PyQt5.QtGui import QImage, QPixmap
+# from PyQt5.QtCore import Qt
+# import cv2
+
+# a = seleccionar_archivo()
+
+# class MainWindow(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
+#         uic.loadUi("JPG_PNG_Experto_Imagenes.ui", self)
+        
+#         # Cargar la imagen con OpenCV
+#         self.ima = cv2.imread(f"{a}")
+#         height, width, _ = self.ima.shape
+        
+#         # Convertir la imagen de OpenCV a formato compatible con Qt
+#         bytesPerLine = 3 * width
+#         q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+        
+#         # Crear un QLabel para mostrar la imagen
+#         self.campo_grafico = QLabel(self.campo_grafico)
+        
+#         # Redimensionar la imagen proporcionalmente para que se ajuste al ancho del campo_grafico
+#         pixmap = QPixmap.fromImage(q_img)
+#         pixmap = pixmap.scaled(self.campo_grafico.width(), self.campo_grafico.height(), Qt.KeepAspectRatio)
+#         self.campo_grafico.setPixmap(pixmap)
+        
+#         # Configurar el QLabel
+#         self.campo_grafico.setScaledContents(False)
+#         self.campo_grafico.setGeometry(0, 0, self.campo_grafico.width(), self.campo_grafico.height())
+#         self.campo_grafico.setAlignment(Qt.AlignCenter)
+        
+#         # Establecer el texto del QLabel desde Python
+#         self.label_2.setText(f"""1.++++++++++++++++++++
+# 2.++++++++++++++++++++
+# height: {height}
+# width: {width}
+# 5.++++++++++++++++++++
+# Aquí aparece la infor-
+# mación de la imagen.
+# 8.++++++++++++++++++++
+# 2.++++++++++++++++++++
+# 3.++++++++++++++++++++""")
+
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     ventana = MainWindow()
+#     ventana.show()
+#     sys.exit(app.exec_())
+
+
 import cv2
+import matplotlib.pyplot as plt
 
-a = seleccionar_archivo()
+# Cargar imagen en escala de grises
+img = cv2.imread('IMG_7113.jpg', cv2.IMREAD_GRAYSCALE)
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        uic.loadUi("JPG_PNG_Experto_Imagenes.ui", self)
-        
-        # Cargar la imagen con OpenCV
-        self.ima = cv2.imread(f"{a}")
-        height, width, _ = self.ima.shape
-        
-        # Convertir la imagen de OpenCV a formato compatible con Qt
-        bytesPerLine = 3 * width
-        q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
-        
-        # Crear un QLabel para mostrar la imagen
-        self.campo_grafico = QLabel(self.campo_grafico)
-        
-        # Redimensionar la imagen proporcionalmente para que se ajuste al ancho del campo_grafico
-        pixmap = QPixmap.fromImage(q_img)
-        pixmap = pixmap.scaled(self.campo_grafico.width(), self.campo_grafico.height(), Qt.KeepAspectRatio)
-        self.campo_grafico.setPixmap(pixmap)
-        
-        # Configurar el QLabel
-        self.campo_grafico.setScaledContents(False)
-        self.campo_grafico.setGeometry(0, 0, self.campo_grafico.width(), self.campo_grafico.height())
-        self.campo_grafico.setAlignment(Qt.AlignCenter)
-        
-        # Establecer el texto del QLabel desde Python
-        self.label_2.setText(f"""1.++++++++++++++++++++
-2.++++++++++++++++++++
-height: {height}
-width: {width}
-5.++++++++++++++++++++
-Aquí aparece la infor-
-mación de la imagen.
-8.++++++++++++++++++++
-2.++++++++++++++++++++
-3.++++++++++++++++++++""")
+# Ecualizar la imagen
+img_ecualizada = cv2.equalizeHist(img)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ventana = MainWindow()
-    ventana.show()
-    sys.exit(app.exec_())
+# Mostrar resultados
+plt.subplot(1, 2, 1)
+plt.title("Original")
+plt.imshow(img, cmap='gray')
 
+plt.subplot(1, 2, 2)
+plt.title("Ecualizada")
+plt.imshow(img_ecualizada, cmap='gray')
+
+plt.show()
