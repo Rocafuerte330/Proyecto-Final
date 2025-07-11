@@ -10,6 +10,12 @@ class Coordinador():
     def __init__(self, vista, modelo):
         self.__vista = vista
         self.__modelo = modelo
+        self.vista_mat = None
+
+    def mostrar_vista_mat(self):
+        """Abre la vista alternativa para archivos .mat"""
+        self.vista_mat = menu_Senales(self)
+        self.vista_mat.show()
 # El controlador debe tener un método para recibir la información de la vista.
 # El controlador simplemente debe enviar esta info al modelo y esperar que este le responda
     def validarUsuario(self, login, passwd):

@@ -11,7 +11,15 @@ from PyQt5.QtGui import QImage, QPixmap
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-
+from PyQt5.QtWidgets import (
+    QWidget, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout,
+    QSpinBox, QDoubleSpinBox, QMessageBox, QComboBox
+)
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
+from matplotlib.figure import Figure
+import numpy as np
+from Modelo import ArchMAT
+import os
 
 class VentanaLogin(QDialog):
     def __init__(self,ppal=None):
@@ -104,6 +112,8 @@ class menu_JPG_PNG(QMainWindow):
         self.List_imgs.clicked.connect(self.mostrar_ima)
         self.Button_Cambio_Color.clicked.connect(self.cambio_color)
         self.Button_Ecu_Ima.clicked.connect(self.ecualizacion)
+        self.Button_Binarizacion.clicked.connect(self.binarizacion)
+        self.Button_Conteo_Celulas.clicked.connect(self.conteo_celulas)
 
     def setControlador(self, c):
         self.__controlador = c
@@ -147,53 +157,55 @@ class menu_JPG_PNG(QMainWindow):
             label.show()
             
             self.Info_ima_Text.setText(f"""- Tamaño, producto de f*col*can: {self.ima.size}
-    - height: {height}
-    - width: {width}
-    - Tipo: {self.ima.dtype}
-    - Tamaño, D1: {len(self.ima)}
-    - Tamaño, D2: {len(self.ima[0,:,:])}
-    - Tamaño, D3: {len(self.ima[0,0,:])}
-    - F, C, c: {self.ima.shape}
-    - Media: {self.ima.mean()}
-    - Desviación Estandar: {self.ima.std()}
-    - Minimo: {self.ima.min()}
-    - Maximo: {self.ima.max()}""")
+- height: {height}
+- width: {width}
+- Tipo: {self.ima.dtype}
+- Tamaño, D1: {len(self.ima)}
+- Tamaño, D2: {len(self.ima[0,:,:])}
+- Tamaño, D3: {len(self.ima[0,0,:])}
+- F, C, c: {self.ima.shape}
+- Media: {self.ima.mean()}
+- Desviación Estandar: {self.ima.std()}
+- Minimo: {self.ima.min()}
+- Maximo: {self.ima.max()}""")
+            self.Label_Alert.setText("")
         else:
             self.Info_ima_Text.setText("No se pudo cargar la imagen.")
 
     def cambio_color(self):
-        for widget in self.campo_grafico.children():
-            widget.deleteLater() 
-        if self.ima is not None:
-            # Convertir la imagen de BGR a RGB
-            img_ = cv2.cvtColor(self.ima, cv2.COLOR_BGR2RGB)
-            
-            # Actualizar self.ima con la imagen convertida
-            self.ima = img_
-            
-            # Actualizar el campo_grafico con la nueva imagen
-            height, width, channel = self.ima.shape
-            bytesPerLine = 3 * width
-            q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            pixmap = QPixmap.fromImage(q_img)
-            pixmap = pixmap.scaled(self.campo_grafico.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            
-            # Actualizar el QLabel en campo_grafico
-            label = QLabel(self.campo_grafico)
-            label.setPixmap(pixmap)
-            label.setAlignment(Qt.AlignCenter)
-            label.setGeometry(self.campo_grafico.rect())
-            
-            # Eliminar cualquier otro QLabel existente en campo_grafico
-            for widget in self.campo_grafico.findChildren(QLabel):
-                if widget != label:
-                    widget.deleteLater()
-            
-            # Asegurarse de que el QLabel se muestra correctamente
-            label.show()
-            
-            # Actualizar la información de la imagen
-            self.Info_ima_Text.setText(f"""- Tamaño, producto de 
+        try:
+            for widget in self.campo_grafico.children():
+                widget.deleteLater() 
+            if self.ima is not None:
+                # Convertir la imagen de BGR a RGB
+                img_ = cv2.cvtColor(self.ima, cv2.COLOR_BGR2RGB)
+                
+                # Actualizar self.ima con la imagen convertida
+                self.ima = img_
+                
+                # Actualizar el campo_grafico con la nueva imagen
+                height, width, channel = self.ima.shape
+                bytesPerLine = 3 * width
+                q_img = QImage(self.ima.data, width, height, bytesPerLine, QImage.Format_RGB888)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.campo_grafico.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                
+                # Actualizar el QLabel en campo_grafico
+                label = QLabel(self.campo_grafico)
+                label.setPixmap(pixmap)
+                label.setAlignment(Qt.AlignCenter)
+                label.setGeometry(self.campo_grafico.rect())
+                
+                # Eliminar cualquier otro QLabel existente en campo_grafico
+                for widget in self.campo_grafico.findChildren(QLabel):
+                    if widget != label:
+                        widget.deleteLater()
+                
+                # Asegurarse de que el QLabel se muestra correctamente
+                label.show()
+                
+                # Actualizar la información de la imagen
+                self.Info_ima_Text.setText(f"""- Tamaño, producto de 
 f*col*can: {self.ima.size}
 - height: {height}
 - width: {width}
@@ -206,58 +218,204 @@ f*col*can: {self.ima.size}
 - Desviación Estandar: {self.ima.std()}
 - Minimo: {self.ima.min()}
 - Maximo: {self.ima.max()}""")
-        else:
-            self.Info_ima_Text.setText("No hay ninguna imagen cargada.")
+                self.Label_Alert.setText("")
+                
+            else:
+                self.Info_ima_Text.setText("No hay ninguna imagen cargada.")
+        except:
+                self.Label_Alert.setText("Asegurese de elegir una imagen.")
+
 
     def ecualizacion(self):
-        for widget in self.campo_grafico.children():
-            widget.deleteLater()   
-        if self.ima is not None:
-            # Convertir la imagen a escala de grises si es a color
-            if len(self.ima.shape) == 3:
-                img_gray = cv2.cvtColor(self.ima, cv2.COLOR_BGR2GRAY)
+        try: 
+            for widget in self.campo_grafico.children():
+                widget.deleteLater()   
+            if self.ima is not None:
+                # Convertir la imagen a escala de grises si es a color
+                if len(self.ima.shape) == 3:
+                    img_gray = cv2.cvtColor(self.ima, cv2.COLOR_BGR2GRAY)
+                else:
+                    img_gray = self.ima
+                
+                # Ecualizar la imagen
+                img_ecualizada = cv2.equalizeHist(img_gray)
+                
+                # Crear una figura de matplotlib con dos subfiguras
+                fig = Figure(figsize=(10, 5))
+                ax1 = fig.add_subplot(121)
+                ax2 = fig.add_subplot(122)
+                
+                # Mostrar la imagen original y ecualizada
+                ax1.imshow(img_gray, cmap='gray')
+                ax1.set_title('Original')
+                ax1.axis('off')
+                
+                ax2.imshow(img_ecualizada, cmap='gray')
+                ax2.set_title('Ecualizada')
+                ax2.axis('off')
+                
+                # Convertir la figura a un widget de Qt
+                canvas = FigureCanvas(fig)
+                canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+                canvas.updateGeometry()
+                
+                # Eliminar cualquier widget previo en campo_grafico
+                # Primero, eliminamos el layout existente y todos sus widgets
+                layout = self.campo_grafico.layout()
+                if layout is not None:
+                    while layout.count():
+                        child = layout.takeAt(0)
+                        if child.widget():
+                            child.widget().deleteLater()
+                    layout.deleteLater()
+                
+                # Crear un nuevo layout para campo_grafico
+                new_layout = QtWidgets.QVBoxLayout(self.campo_grafico)
+                new_layout.addWidget(canvas)
+                # Actualizar el campo_grafico con el nuevo layout
+                self.campo_grafico.setLayout(new_layout)
+                self.Label_Alert.setText("")
+
             else:
-                img_gray = self.ima
+                self.Info_ima_Text.setText("No hay ninguna imagen cargada.")
+        except:
+                self.Label_Alert.setText("Asegurese de elegir una imagen.")
+    from matplotlib.figure import Figure
+
+    def binarizacion(self):
+        try:
+            # Obtener valores del kernel
+            row = int(self.Campo_Filas.text())
+            col = int(self.Campo_Columnas.text())
+            kernel = (row, col)
             
-            # Ecualizar la imagen
-            img_ecualizada = cv2.equalizeHist(img_gray)
-            
-            # Crear una figura de matplotlib con dos subfiguras
-            fig = Figure(figsize=(10, 5))
-            ax1 = fig.add_subplot(121)
-            ax2 = fig.add_subplot(122)
-            
-            # Mostrar la imagen original y ecualizada
-            ax1.imshow(img_gray, cmap='gray')
-            ax1.set_title('Original')
-            ax1.axis('off')
-            
-            ax2.imshow(img_ecualizada, cmap='gray')
-            ax2.set_title('Ecualizada')
-            ax2.axis('off')
-            
-            # Convertir la figura a un widget de Qt
-            canvas = FigureCanvas(fig)
-            canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-            canvas.updateGeometry()
-            
-            # Eliminar cualquier widget previo en campo_grafico
-            # Primero, eliminamos el layout existente y todos sus widgets
-            layout = self.campo_grafico.layout()
-            if layout is not None:
-                while layout.count():
-                    child = layout.takeAt(0)
-                    if child.widget():
-                        child.widget().deleteLater()
-                layout.deleteLater()
-            
-            # Crear un nuevo layout para campo_grafico
-            new_layout = QtWidgets.QVBoxLayout(self.campo_grafico)
-            new_layout.addWidget(canvas)
-            # Actualizar el campo_grafico con el nuevo layout
-            self.campo_grafico.setLayout(new_layout)
-        else:
-            self.Info_ima_Text.setText("No hay ninguna imagen cargada.")
+            if self.ima is not None:
+                # Eliminar cualquier widget previo en campo_grafico
+                for widget in self.campo_grafico.children():
+                    widget.deleteLater()
+
+                # Convertir la imagen a escala de grises si es a color
+                if len(self.ima.shape) == 3:
+                    img_gray = cv2.cvtColor(self.ima, cv2.COLOR_BGR2GRAY)
+                else:
+                    img_gray = self.ima.copy()  # Asegurarse de no modificar la imagen original
+                vmin = np.min(img_gray)
+                vmax = np.max(img_gray)
+                # Binarización usando Threshold
+                _, img_bin = cv2.threshold(img_gray, vmin, vmax, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+                imaEro = cv2.erode(img_bin,kernel,iterations = 1)
+                imaT = cv2.dilate(imaEro,kernel,iterations = 3)
+                # Crear una figura de matplotlib con dos subfiguras
+                fig = Figure(figsize=(10, 5))
+                ax1 = fig.add_subplot(121)
+                ax2 = fig.add_subplot(122)
+                
+                # Mostrar la imagen original y binarizada
+                ax1.imshow(img_gray, cmap='gray')
+                ax1.set_title('Original')
+                ax1.axis('off')
+                
+                ax2.imshow(imaT, cmap='gray')
+                ax2.set_title('Binarizada')
+                ax2.axis('off')
+                
+                # Convertir la figura a un widget de Qt
+                canvas = FigureCanvas(fig)
+                canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+                canvas.updateGeometry()
+                
+                # Eliminar cualquier layout existente y todos sus widgets
+                layout = self.campo_grafico.layout()
+                if layout is not None:
+                    while layout.count():
+                        child = layout.takeAt(0)
+                        if child.widget():
+                            child.widget().deleteLater()
+                    layout.deleteLater()
+                
+                # Crear un nuevo layout para campo_grafico
+                new_layout = QtWidgets.QVBoxLayout(self.campo_grafico)
+                new_layout.addWidget(canvas)
+                
+                # Actualizar el campo_grafico con el nuevo layout
+                self.campo_grafico.setLayout(new_layout)
+                self.Label_Alert.setText("")
+
+            else:
+                self.Label_Alert.setText("No hay ninguna imagen cargada.")
+        except:
+            self.Label_Alert.setText("Asegurese de elegir una imagen.")
+
+    def conteo_celulas(self):
+        try:
+            if self.ima is not None:
+                # Eliminar cualquier widget previo en campo_grafico
+                for widget in self.campo_grafico.children():
+                    widget.deleteLater()
+
+                # Convertir la imagen a escala de grises si es a color
+                if len(self.ima.shape) == 3:
+                    img_gray = cv2.cvtColor(self.ima, cv2.COLOR_BGR2GRAY)
+                else:
+                    img_gray = self.ima.copy()
+
+                # Binarización usando Threshold de Otsu
+                _, img_otsu = cv2.threshold(img_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+                # Crear kernel para operaciones morfológicas
+                kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (8, 8))
+
+                # Erosión para reducir ruido
+                img_erode = cv2.erode(img_otsu, kernel, iterations=1)
+
+                # Dilatación para unir contornos
+                img_dilate = cv2.dilate(img_erode, kernel, iterations=1)
+
+                # Conteo de componentes conectados
+                num_celulas, mask = cv2.connectedComponents(img_dilate)
+
+                # Crear una figura de matplotlib con dos subfiguras
+                fig = Figure(figsize=(10, 5))
+                ax1 = fig.add_subplot(121)
+                ax2 = fig.add_subplot(122)
+
+                # Mostrar la imagen original y la imagen con máscara
+                ax1.imshow(cv2.cvtColor(self.ima, cv2.COLOR_BGR2RGB))
+                ax1.set_title('Imagen Original')
+                ax1.axis('off')
+
+                ax2.imshow(mask, cmap='inferno')
+                ax2.set_title('Máscara de Células')
+                ax2.axis('off')
+
+                # Convertir la figura a un widget de Qt
+                canvas = FigureCanvas(fig)
+                canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+                canvas.updateGeometry()
+
+                # Eliminar cualquier layout existente y todos sus widgets
+                layout = self.campo_grafico.layout()
+                if layout is not None:
+                    while layout.count():
+                        child = layout.takeAt(0)
+                        if child.widget():
+                            child.widget().deleteLater()
+                    layout.deleteLater()
+
+                # Crear un nuevo layout para campo_grafico
+                new_layout = QtWidgets.QVBoxLayout(self.campo_grafico)
+                new_layout.addWidget(canvas)
+
+                # Actualizar el campo_grafico con el nuevo layout
+                self.campo_grafico.setLayout(new_layout)
+
+                # Actualizar el Label_Alert con el número de células
+                self.Label_Alert.setText(f"El número de células en la imagen es de {num_celulas}")
+            else:
+                self.Label_Alert.setText("No hay ninguna imagen cargada.")
+        except Exception as e:
+            self.Label_Alert.setText(f"Error: {str(e)}")
+
 
 class menu_DICOM(QMainWindow):
     def __init__(self,ppal=None):

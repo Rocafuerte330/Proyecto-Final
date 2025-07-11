@@ -224,6 +224,19 @@
      <string>Cargar Base de Datos</string>
     </property>
    </widget>
+   <widget class="QLabel" name="Label_Alert">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>750</y>
+      <width>1161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
