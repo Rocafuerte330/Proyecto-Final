@@ -237,6 +237,29 @@
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>880</y>
+      <width>60</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>iterations</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Campo_iter">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>880</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

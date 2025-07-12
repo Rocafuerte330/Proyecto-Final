@@ -34,10 +34,8 @@ class VentanaLogin(QDialog):
 # Si probamos veremos que la ventana se cerrará, algo que no queremos para el ejemplo, por lo que será mejor sobre-escribir los
 # métodos accept y reject que por defecto cierran la ventana
     def accept(self):
-        # login = self.Campo_User.text()
-        # passwd = self.Campo_Passwd.text()
-        login = "Jose.R"
-        passwd = "loleljuego_01"
+        login = self.Campo_User.text()
+        passwd = self.Campo_Passwd.text()
 # Pasamos la información al controlaror
         resultado = self.__controlador.validarUsuario(login,passwd)
 # Imprimimos el resultado de la operación
@@ -344,9 +342,10 @@ f*col*can: {self.ima.size}
             else:
                 self.Label_Alert.setText("No hay ninguna imagen cargada.")
         except:
-            self.Label_Alert.setText("Asegurese de elegir una imagen.")
+            self.Label_Alert.setText("Asegurese de elegir una imagen y que el kernel sean numeros enteros.")
 
     def conteo_celulas(self):
+
         try:
             if self.ima is not None:
                 # Eliminar cualquier widget previo en campo_grafico
@@ -359,17 +358,22 @@ f*col*can: {self.ima.size}
                 else:
                     img_gray = self.ima.copy()
 
+                vmin = np.min(img_gray)
+                vmax = np.max(img_gray)
                 # Binarización usando Threshold de Otsu
-                _, img_otsu = cv2.threshold(img_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+                _, img_otsu = cv2.threshold(img_gray, vmin, vmax, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
                 # Crear kernel para operaciones morfológicas
-                kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (8, 8))
+                row = int(self.Campo_Filas.text())
+                col = int(self.Campo_Columnas.text())
+                kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (row, col))
 
+                iter = int(self.Campo_iter.text())
                 # Erosión para reducir ruido
-                img_erode = cv2.erode(img_otsu, kernel, iterations=1)
+                img_erode = cv2.erode(img_otsu, kernel, iterations=iter)
 
                 # Dilatación para unir contornos
-                img_dilate = cv2.dilate(img_erode, kernel, iterations=1)
+                img_dilate = cv2.dilate(img_erode, kernel, iterations=iter)
 
                 # Conteo de componentes conectados
                 num_celulas, mask = cv2.connectedComponents(img_dilate)
@@ -410,11 +414,11 @@ f*col*can: {self.ima.size}
                 self.campo_grafico.setLayout(new_layout)
 
                 # Actualizar el Label_Alert con el número de células
-                self.Label_Alert.setText(f"El número de células en la imagen es de {num_celulas}")
+                self.Label_Alert.setText(f"El número de células en la imagen es de {num_celulas-1}")
             else:
                 self.Label_Alert.setText("No hay ninguna imagen cargada.")
         except Exception as e:
-            self.Label_Alert.setText(f"Error: {str(e)}")
+            self.Label_Alert.setText(f"Asegurese de elegir una imagen y que el kernel sean numeros enteros")
 
 
 class menu_DICOM(QMainWindow):
