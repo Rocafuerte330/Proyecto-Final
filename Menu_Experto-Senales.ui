@@ -1,45 +1,479 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>Menu_Experto_Senales</class>
+ <widget class="QMainWindow" name="Menu_Experto_Senales">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>900</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Menú Experto en Señales</string>
+  </property>
+  <property name="styleSheet">
+   <string>background-color: rgb(239, 239, 239);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>170</y>
-      <width>261</width>
-      <height>141</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Menú para Señales</string>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>10</y>
+        <width>291</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Times New Roman</family>
+        <pointsize>18</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string>font-size: 18pt; font-weight: bold;</string>
+      </property>
+      <property name="text">
+       <string>Usuario Experto en Señales</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>40</y>
+        <width>850</width>
+        <height>291</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string>background-color: rgb(223, 223, 223);</string>
+      </property>
+      <property name="title">
+       <string>Visualización de Señal (.mat)</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QWidget" name="widget_2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>820</width>
+           <height>251</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string>background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="btnCargarMat">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>360</y>
+             <width>130</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(177, 200, 230); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>Cargar archivo .mat</string>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/Escudo-UdeA.svg</normaloff>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="geometry">
+            <rect>
+             <x>170</x>
+             <y>340</y>
+             <width>100</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Canal inicio</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="inputCanalIni">
+           <property name="geometry">
+            <rect>
+             <x>160</x>
+             <y>360</y>
+             <width>100</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="geometry">
+            <rect>
+             <x>280</x>
+             <y>340</y>
+             <width>100</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Canal fin</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="inputCanalFin">
+           <property name="geometry">
+            <rect>
+             <x>270</x>
+             <y>360</y>
+             <width>100</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="geometry">
+            <rect>
+             <x>390</x>
+             <y>340</y>
+             <width>100</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Tiempo inicio</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="inputTiempoIni">
+           <property name="geometry">
+            <rect>
+             <x>380</x>
+             <y>360</y>
+             <width>100</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="geometry">
+            <rect>
+             <x>500</x>
+             <y>340</y>
+             <width>100</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Tiempo fin</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="inputTiempoFin">
+           <property name="geometry">
+            <rect>
+             <x>490</x>
+             <y>360</y>
+             <width>100</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>10</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboLlaves">
+           <property name="geometry">
+            <rect>
+             <x>600</x>
+             <y>360</y>
+             <width>150</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnGraficarMat">
+           <property name="geometry">
+            <rect>
+             <x>760</x>
+             <y>360</y>
+             <width>150</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(167, 188, 217); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>Graficar señales</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPromedioMat">
+           <property name="geometry">
+            <rect>
+             <x>920</x>
+             <y>360</y>
+             <width>150</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(167, 188, 217); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>Promedio</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>410</y>
+        <width>850</width>
+        <height>230</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string>background-color: rgb(223, 223, 223);</string>
+      </property>
+      <property name="title">
+       <string>Visualización de archivo .CSV</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="btnCargarCSV">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>30</y>
+             <width>130</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(220, 198, 241); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>Cargar archivo CSV</string>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/Escudo-UdeA.svg</normaloff>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboColumnaX">
+           <property name="geometry">
+            <rect>
+             <x>530</x>
+             <y>70</y>
+             <width>130</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboColumnaY">
+           <property name="geometry">
+            <rect>
+             <x>670</x>
+             <y>70</y>
+             <width>130</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="tablaCSV">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>500</width>
+           <height>151</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string>background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QPushButton" name="btnGraficarScatter">
+           <property name="geometry">
+            <rect>
+             <x>530</x>
+             <y>110</y>
+             <width>135</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(211, 190, 231); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>Graficar dispersión</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPromedioCSV">
+           <property name="geometry">
+            <rect>
+             <x>675</x>
+             <y>110</y>
+             <width>135</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string>background-color: rgb(211, 190, 231); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+           </property>
+           <property name="text">
+            <string>Promedio columnas</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_4">
+         <property name="geometry">
+          <rect>
+           <x>530</x>
+           <y>150</y>
+           <width>270</width>
+           <height>70</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string>background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnSalir">
+      <property name="geometry">
+       <rect>
+        <x>790</x>
+        <y>650</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Times New Roman</family>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string>background-color: rgb(211, 211, 211); color: black; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt;</string>
+      </property>
+      <property name="text">
+       <string>Salir</string>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/icons/icono de usuario.webp</normaloff>
+       </iconset>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>42</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

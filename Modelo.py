@@ -1,8 +1,10 @@
 import mysql.connector
 import cv2
 from datetime import datetime 
+from scipy.io import loadmat
 import scipy.io as sio
 import numpy as np
+import pandas as pd
 import os
 
 SERVER = "localhost"
@@ -14,9 +16,27 @@ cursor = cnx.cursor()
 
 
 class BaseDatos(object):
-    def __init__(self):
+    def __init__(self, nombre="", ruta=""):
         self.login = ""
         self.passwd = ""
+        self.nombre = nombre
+        self.ruta = ruta
+        self.datos   = None
+        self.dataframe = None
+        self.frecuencia = 100
+        self.senal = None
+
+    def cargar_mat(self, ruta):
+        self.ruta = ruta
+        self.nombre = os.path.basename(ruta)
+        self.datos = loadmat(ruta)
+        self.frecuencia = self.datos.get('fs', 100)
+
+    def cargar_csv(self, ruta):
+        self.ruta = ruta
+        self.nombre = os.path.basename(ruta)
+        self.dataframe = pd.read_csv(ruta)
+        
 
     def setLogin(self, login):
         self.login = login
@@ -104,62 +124,87 @@ class BaseDatos(object):
                     Ruta_ima = f'{a}'.replace("',)","")
         print(Ruta_ima)
         return Ruta_ima
-        
-class ArchMAT:
-    """Carga y maneja señales desde un archivo .mat"""
-
-    def __init__(self, nombre_archivo, ruta_archivo):
-        self.nombre = nombre_archivo
-        self.ruta = ruta_archivo
-        self.datos_mat = sio.loadmat(ruta_archivo)
-        self.senal = self.datos_mat.get('data')  # Asegurarse de tener 'data' como clave
-
-        # En caso de ser 3D, tomar solo la primera época
-        if self.senal is not None and self.senal.ndim == 3:
-            self.senal = self.senal[:, :, 0]
-
-        self.frecuencia = 100  # Hz (modificable según tu archivo)
 
     def obtener_llaves(self):
-        #---Esto devuelve las claves del archivo .mat---
-        return list(self.datos_mat.keys())
+        return [k for k in self.datos.keys() if not k.startswith("__")]
 
     def es_arreglo_valido(self, clave):
-        #---Esto para verificar si la clave contiene un arreglo NumPy---
-        return isinstance(self.datos_mat.get(clave), np.ndarray)
+        try:
+            self.senal = self.datos[clave]
+            if isinstance(self.senal, np.ndarray):
+                if self.senal.ndim == 3:
+                    self.senal = self.senal[:, :, 0]
+                elif self.senal.ndim > 3:
+                    return False
+                return self.senal.ndim == 2 and np.issubdtype(self.senal.dtype, np.number)
+            return False
+        except:
+            return False
 
     def extraer_intervalo(self, clave, canal_ini, canal_fin, tiempo_ini, tiempo_fin):
-        arreglo = self.datos_mat.get(clave)
-        #--- El arreglo de 3D a 2D---
-        if arreglo.ndim == 3:
-            arreglo = arreglo[:, :, 0]
-
-        if canal_ini > canal_fin or canal_fin >= arreglo.shape[0]:
+        self.senal = self.datos[clave]
+        if self.senal.ndim == 3:
+            self.senal = self.senal[:, :, 0]
+        if self.senal.ndim != 2:
+            raise ValueError("El arreglo debe ser bidimensional")
+        if canal_ini < 0 or canal_fin >= self.senal.shape[0] or canal_ini > canal_fin:
             raise ValueError("Rango de canales inválido")
-
         idx_ini = int(tiempo_ini * self.frecuencia)
         idx_fin = int(tiempo_fin * self.frecuencia)
-
-        if idx_ini >= idx_fin or idx_fin > arreglo.shape[1]:
+        if idx_ini < 0 or idx_fin > self.senal.shape[1] or idx_ini >= idx_fin:
             raise ValueError("Intervalo de tiempo inválido")
-
+        datos = self.senal[canal_ini:canal_fin + 1, idx_ini:idx_fin]
         tiempo = np.arange(idx_ini, idx_fin) / self.frecuencia
-        datos = arreglo[canal_ini:canal_fin+1, idx_ini:idx_fin]
         return tiempo, datos
 
     def calcular_promedio(self, clave):
-        arreglo = self.datos_mat.get(clave)
+        arreglo = self.datos[clave]
+        print(f"Depuración - Clave: {clave}, Tipo: {type(arreglo)}, Shape: {getattr(arreglo, 'shape', 'No shape')}")
+
         if arreglo.ndim == 3:
             arreglo = arreglo[:, :, 0]
-
+        elif arreglo.ndim > 3:
+            raise ValueError("Arreglo con más de 3 dimensiones no soportado")
         if arreglo.ndim != 2:
-            raise ValueError("El arreglo debe ser 2D para poder calcular promedio")
+            raise ValueError("La clave seleccionada no es un arreglo bidimensional válido")
+        if arreglo.size == 0:
+            raise ValueError("El arreglo está vacío")
+        if not np.issubdtype(arreglo.dtype, np.number):
+            raise ValueError("El arreglo contiene datos no numéricos")
 
-        if arreglo.shape[0] <= arreglo.shape[1]:
+        arreglo = np.nan_to_num(arreglo, nan=0.0, posinf=0.0, neginf=0.0)
+        try:
             promedio = np.mean(arreglo, axis=1)
-            indices = np.arange(arreglo.shape[0])
-        else:
-            promedio = np.mean(arreglo, axis=0)
-            indices = np.arange(arreglo.shape[1])
+            if len(promedio) == 0:
+                raise ValueError("El promedio calculado está vacío")
+            indices = np.arange(len(promedio))
+            return indices, promedio
+        except Exception as e:
+            raise ValueError(f"Error en cálculo de promedio: {str(e)}")
 
-        return indices, promedio
+
+    def obtener_columnas(self):
+        return self.dataframe.columns.tolist()
+
+    def obtener_valores(self, columna_x, columna_y):
+        if columna_x not in self.dataframe.columns or columna_y not in self.dataframe.columns:
+            raise ValueError("Columna no encontrada")
+        return self.dataframe[columna_x].values, self.dataframe[columna_y].values
+
+    def calcular_promedios(self):
+        return self.dataframe.mean(numeric_only=True)
+
+    def calcular_estadisticas(self, columna):
+        if columna not in self.dataframe.columns:
+            raise ValueError("Columna no encontrada")
+        datos = self.dataframe[columna]
+        return {
+            'media': datos.mean(),
+            'mediana': datos.median(),
+            'desviacion': datos.std(),
+            'minimo': datos.min(),
+            'maximo': datos.max()
+        }
+
+    def obtener_datos_tabla(self):
+        return self.dataframe.values.tolist(), self.dataframe.columns.tolist()

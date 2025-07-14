@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QDialog, QMainWindow, QFileDialog, QListView, QLabel
+from PyQt5.QtWidgets import QDialog, QMainWindow, QFileDialog, QListView, QLabel, QTableWidgetItem
 from PyQt5.uic import loadUi
 from PyQt5 import QtWidgets
 from Modelo import *
 import time
 import cv2
+from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from PyQt5.QtCore import QStringListModel, Qt
@@ -18,7 +19,7 @@ from PyQt5.QtWidgets import (
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.figure import Figure
 import numpy as np
-from Modelo import ArchMAT
+from Modelo import BaseDatos
 import os
 
 class VentanaLogin(QDialog):
@@ -36,13 +37,12 @@ class VentanaLogin(QDialog):
     def accept(self):
         login = self.Campo_User.text()
         passwd = self.Campo_Passwd.text()
-# Pasamos la información al controlaror
-        resultado = self.__controlador.validarUsuario(login,passwd)
-# Imprimimos el resultado de la operación
+        resultado = self.__controlador.validarUsuario(login, passwd)
+
         if resultado == "Experto en Imágenes":
-            self.buttonBox.accepted.connect(self.abrir_menu_imagenes)
+            self.abrir_menu_imagenes()          # ← directo
         elif resultado == "Experto en Señales":
-            self.buttonBox.accepted.connect(self.abrir_menu_senales)
+            self.abrir_menu_senales()           # ← directo
         else:
             self.label.setText("Usuario no encontrado\nIntente nuevamente")
             
@@ -67,9 +67,10 @@ class VentanaLogin(QDialog):
         menuImagenes.show()
     
     def abrir_menu_senales(self):
-        menuSeñales = menu_Senales(self)
+        menuSenales = menu_Senales(self)
+        menuSenales.setControlador(self.__controlador)  # ← NUNCA olvides esta línea
         self.hide()
-        menuSeñales.show()
+        menuSenales.show()
     
 class menu_Imagenes(QMainWindow):
     def __init__(self,ppal=None):
@@ -427,8 +428,187 @@ class menu_DICOM(QMainWindow):
         loadUi("DICOM_Experto_Imagenes.ui",self) 
         
 class menu_Senales(QMainWindow):
-    def __init__(self,ppal=None):
+    def __init__(self, ppal=None):
         super().__init__(ppal)
-        loadUi("Menu_Experto-Senales.ui",self) 
+        loadUi("Menu_Experto-Senales.ui", self)
+        self.__controlador = None
+        self.archivo_mat = None
+        self.archivo_csv = None
+        self.canvas_mat = None  # Nueva referencia fuerte
+        self.canvas_csv = None  # Nueva referencia fuerte
         self.setup()
+
+    def setup(self):
+        self.btnCargarMat.clicked.connect(self.cargar_mat)
+        self.btnGraficarMat.clicked.connect(self.graficar_mat)
+        self.btnPromedioMat.clicked.connect(self.promedio_mat)
+        self.btnCargarCSV.clicked.connect(self.cargar_csv)
+        self.btnGraficarScatter.clicked.connect(self.graficar_scatter_csv)
+        self.btnPromedioCSV.clicked.connect(self.promedio_csv)
+        self.btnSalir.clicked.connect(self.close)
+
+        self.figure_mat = Figure()
+        self.canvas_mat = FigureCanvas(self.figure_mat)  # Asignar a la referencia fuerte
+        layout_mat = QVBoxLayout(self.widget_2)
+        layout_mat.addWidget(self.canvas_mat)
+        self.widget_2.setLayout(layout_mat)
+
+        self.figure_csv = Figure()
+        self.canvas_csv = FigureCanvas(self.figure_csv)  # Asignar a la referencia fuerte
+        layout_csv = QVBoxLayout(self.widget_4)
+        layout_csv.addWidget(self.canvas_csv)
+        self.widget_4.setLayout(layout_csv)
+
+        self.setStyleSheet("""
+            QMainWindow { background-color: rgb(239, 239, 239); }
+            QPushButton { background-color: rgb(167, 188, 217); color: white; border-radius: 5px; padding: 8px; font-family: Times New Roman; font-size: 12pt; }
+            QPushButton#btnCargarMat, QPushButton#btnCargarCSV { background-color: rgb(177, 200, 230); }
+            QPushButton#btnSalir { background-color: rgb(211, 211, 211); }
+            QComboBox, QLineEdit { background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); padding: 5px; font-family: Times New Roman; font-size: 12pt; }
+            QTableWidget { background-color: rgb(255, 255, 255); border: 1px solid rgb(223, 223, 223); }
+        """)
+
+        self.btnCargarMat.setIcon(QIcon("Escudo-UdeA.svg"))
+        self.btnCargarCSV.setIcon(QIcon("Escudo-UdeA.svg"))
+        self.btnSalir.setIcon(QIcon("icono de usuario.webp"))
+
+    def setControlador(self, c):
+        self.__controlador = c
+
+    def cargar_mat(self):
+        if self.__controlador is None:
+            QMessageBox.critical(self, "Error", "Controlador no asignado.")
+            return
+        ruta, _ = QFileDialog.getOpenFileName(self, "Cargar archivo .mat", "", "Archivos MAT (*.mat)")
+        if ruta:
+            try:
+                self.__controlador.cargar_mat(ruta)
+                self.archivo_mat = self.__controlador.archivo_mat
+                llaves = self.archivo_mat.obtener_llaves()
+                validas = [k for k in llaves if self.archivo_mat.es_arreglo_valido(k)]
+                if validas:
+                    self.comboLlaves.clear()
+                    self.comboLlaves.addItems(validas)
+                else:
+                    QMessageBox.critical(self, "Error", "No se encontraron claves válidas.")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"No se pudo cargar el archivo .mat: {str(e)}")
+
+    def graficar_mat(self):
+        if not self.archivo_mat:
+            QMessageBox.warning(self, "Error", "Primero cargue un archivo .mat.")
+            return
+        try:
+            clave = self.comboLlaves.currentText()
+            c_ini = int(self.inputCanalIni.text())
+            c_fin = int(self.inputCanalFin.text())
+            t_ini = float(self.inputTiempoIni.text())
+            t_fin = float(self.inputTiempoFin.text())
+            tiempo, datos = self.__controlador.extraer_intervalo(clave, c_ini, c_fin, t_ini, t_fin)
+
+            self.figure_mat.clear()
+            ax = self.figure_mat.add_subplot(111)
+            for i, canal in enumerate(datos):
+                ax.plot(tiempo, canal, label=f"Canal {c_ini + i + 1}")
+            ax.set_title("Señales Biomédicas", fontfamily="Times New Roman", fontsize=14)
+            ax.set_xlabel("Tiempo (s)", fontfamily="Times New Roman")
+            ax.set_ylabel("Amplitud", fontfamily="Times New Roman")
+            ax.legend()
+            ax.grid(True)
+            self.canvas_mat.draw()
+        except ValueError as e:
+            QMessageBox.warning(self, "Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al graficar: {str(e)}")
+
+    def promedio_mat(self):
+        if not self.archivo_mat:
+            QMessageBox.warning(self, "Error", "Primero cargue un archivo .mat.")
+            return
+        try:
+            clave = self.comboLlaves.currentText()
+            indices, promedio = self.__controlador.calcular_promedio(clave)
+
+            self.figure_mat.clear()
+            ax = self.figure_mat.add_subplot(111)
+            ax.stem(indices, promedio)
+            ax.set_title("Promedio por Canal", fontfamily="Times New Roman", fontsize=14)
+            ax.set_xlabel("Canal", fontfamily="Times New Roman")
+            ax.set_ylabel("Amplitud Promedio", fontfamily="Times New Roman")
+            ax.grid(True)
+            self.canvas_mat.draw()
+        except ValueError as e:
+            QMessageBox.warning(self, "Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al calcular promedio: {str(e)}")
+
+    def cargar_csv(self):
+        if self.__controlador is None:
+            QMessageBox.critical(self, "Error", "Controlador no asignado.")
+            return
+        ruta, _ = QFileDialog.getOpenFileName(self, "Cargar archivo CSV", "", "Archivos CSV (*.csv)")
+        if ruta:
+            try:
+                self.__controlador.cargar_csv(ruta)
+                self.archivo_csv = self.__controlador.archivo_csv
+                datos, columnas = self.archivo_csv.obtener_datos_tabla()
+                self.tablaCSV.setRowCount(len(datos))
+                self.tablaCSV.setColumnCount(len(columnas))
+                self.tablaCSV.setHorizontalHeaderLabels(columnas)
+                for i, row in enumerate(datos):
+                    for j, val in enumerate(row):
+                        self.tablaCSV.setItem(i, j, QTableWidgetItem(str(val)))
+                columnas = self.archivo_csv.obtener_columnas()
+                self.comboColumnaX.clear()
+                self.comboColumnaY.clear()
+                self.comboColumnaX.addItems(columnas)
+                self.comboColumnaY.addItems(columnas)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"No se pudo cargar el archivo CSV: {str(e)}")
+
+    def graficar_scatter_csv(self):
+        if not self.archivo_csv:
+            QMessageBox.warning(self, "Error", "Primero cargue un archivo CSV.")
+            return
+        try:
+            col_x = self.comboColumnaX.currentText()
+            col_y = self.comboColumnaY.currentText()
+            x, y = self.__controlador.obtener_valores_csv(col_x, col_y)
+
+            self.figure_csv.clear()
+            ax = self.figure_csv.add_subplot(111)
+            ax.scatter(x, y, color='blue', alpha=0.5)
+            ax.set_title(f"Dispersión: {col_x} vs {col_y}", fontfamily="Times New Roman", fontsize=14)
+            ax.set_xlabel(col_x, fontfamily="Times New Roman")
+            ax.set_ylabel(col_y, fontfamily="Times New Roman")
+            ax.grid(True)
+            self.canvas_csv.draw()
+        except ValueError as e:
+            QMessageBox.warning(self, "Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al graficar: {str(e)}")
+
+    def promedio_csv(self):
+        if not self.archivo_csv:
+            QMessageBox.warning(self, "Error", "Primero cargue un archivo CSV.")
+            return
+        try:
+            promedios = self.__controlador.calcular_promedios_csv()
+            columnas = promedios.index
+            valores = promedios.values
+
+            self.figure_csv.clear()
+            ax = self.figure_csv.add_subplot(111)
+            ax.bar(columnas, valores, color='purple')
+            ax.set_title("Promedio de Columnas", fontfamily="Times New Roman", fontsize=14)
+            ax.set_ylabel("Valor Promedio", fontfamily="Times New Roman")
+            ax.grid(True)
+            self.canvas_csv.draw()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al calcular promedios: {str(e)}")
+
+    def closeEvent(self, event):
+        self.canvas_mat = None  # Limpiar referencias
+        self.canvas_csv = None
+        self.close()
 
