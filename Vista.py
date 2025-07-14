@@ -419,7 +419,7 @@ f*col*can: {self.ima.size}
             else:
                 self.Label_Alert.setText("No hay ninguna imagen cargada.")
         except Exception as e:
-            self.Label_Alert.setText(f"Asegurese de elegir una imagen y que el kernel sean numeros enteros")
+            self.Label_Alert.setText(f"Asegurese de elegir una imagen, que el kernel y las iteraciones sean numeros enteros")
 
 
 class menu_DICOM(QMainWindow):

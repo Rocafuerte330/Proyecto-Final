@@ -104,10 +104,8 @@ class BaseDatos(object):
     
     def mostrar_lista(self):
         list = []
-        sql = "SELECT nombre_archivo FROM Otros_archivos"
-        #  WHERE tipo_archivo IN (%s, %s, %s)
-        cursor.execute(sql)
-        # , ("jpg", "png", None)
+        sql = "SELECT nombre_archivo FROM Otros_archivos WHERE tipo_archivo IN (%s, %s, %s)"
+        cursor.execute(sql, ("jpg", "png", None))
         results = cursor.fetchall()
         for i in results:
             a = f'{i}'.replace("('","")
