@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 01-07-2025 a las 02:10:36
+-- Tiempo de generación: 15-07-2025 a las 21:59:12
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -28,21 +28,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `DICOM_NIFTI` (
-  `Patient_ID` varchar(50) NOT NULL,
-  `Patient_Name` varchar(255) DEFAULT NULL,
-  `Patient_Birth_Date` date DEFAULT NULL,
-  `Patient_Sex` enum('M','F','O') DEFAULT NULL,
+  `Primario` int(50) NOT NULL,
   `Ruta_Dicom` varchar(500) DEFAULT NULL,
-  `Ruta_Nifti` varchar(500) DEFAULT NULL,
-  `Pixel_Array` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`Pixel_Array`))
+  `Nombre_Carpeta` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `DICOM_NIFTI`
---
-
-INSERT INTO `DICOM_NIFTI` (`Patient_ID`, `Patient_Name`, `Patient_Birth_Date`, `Patient_Sex`, `Ruta_Dicom`, `Ruta_Nifti`, `Pixel_Array`) VALUES
-('C3N-00247', 'C3N-00247', NULL, 'F', NULL, NULL, '{\r\n  \"array\": [\r\n    [356, 244, 201, 190, 224, 76],\r\n    [309, 387, 370, 122, 17, 6],\r\n    [334, 476, 486, 29, 46, 47],\r\n    [98, 188, 186, 156, 86, 125],\r\n    [66, 138, 139, 221, 74, 81],\r\n    [168, 173, 100, 188, 135, 147]\r\n  ],\r\n  \"shape\": [512, 512],\r\n  \"dtype\": \"uint16\"\r\n}');
 
 -- --------------------------------------------------------
 
@@ -52,18 +41,11 @@ INSERT INTO `DICOM_NIFTI` (`Patient_ID`, `Patient_Name`, `Patient_Birth_Date`, `
 
 CREATE TABLE `Otros_archivos` (
   `id_archivo` int(11) NOT NULL,
-  `tipo_archivo` enum('csv','mat','jpg','png') NOT NULL,
+  `tipo_archivo` enum('csv','mat','jpg','png') DEFAULT NULL,
   `nombre_archivo` varchar(255) NOT NULL,
-  `fecha_trabajo` date NOT NULL,
+  `fecha_trabajo` date NOT NULL DEFAULT current_timestamp(),
   `ruta_archivo` varchar(500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `Otros_archivos`
---
-
-INSERT INTO `Otros_archivos` (`id_archivo`, `tipo_archivo`, `nombre_archivo`, `fecha_trabajo`, `ruta_archivo`) VALUES
-(1, 'csv', 'archivo1.csv', '2025-06-30', 'otros_archivos/archivo1.csv');
 
 -- --------------------------------------------------------
 
@@ -94,7 +76,7 @@ INSERT INTO `Usuarios` (`id_usuario`, `nombre_usuario`, `contrasena`, `tipo_usua
 -- Indices de la tabla `DICOM_NIFTI`
 --
 ALTER TABLE `DICOM_NIFTI`
-  ADD PRIMARY KEY (`Patient_ID`);
+  ADD PRIMARY KEY (`Primario`);
 
 --
 -- Indices de la tabla `Otros_archivos`
@@ -113,10 +95,16 @@ ALTER TABLE `Usuarios`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `DICOM_NIFTI`
+--
+ALTER TABLE `DICOM_NIFTI`
+  MODIFY `Primario` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT de la tabla `Otros_archivos`
 --
 ALTER TABLE `Otros_archivos`
-  MODIFY `id_archivo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_archivo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT de la tabla `Usuarios`

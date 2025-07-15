@@ -5,6 +5,8 @@ import sys
 from PyQt5.QtWidgets import QApplication, QFileDialog
 import matplotlib.pyplot as plt
 
+# Link GitHub del proyecto -> https://github.com/Rocafuerte330/Proyecto-Final
+
 class Coordinador():
     # El coordinador debe tenet acceso a obejetos de ambas clases (Modelo y vista)
     def __init__(self, vista, modelo):
