@@ -21,6 +21,8 @@ from matplotlib.figure import Figure
 import numpy as np
 from Modelo import BaseDatos
 import os
+import pydicom
+
 
 class VentanaLogin(QDialog):
     def __init__(self,ppal=None):
@@ -35,8 +37,10 @@ class VentanaLogin(QDialog):
 # Si probamos veremos que la ventana se cerrará, algo que no queremos para el ejemplo, por lo que será mejor sobre-escribir los
 # métodos accept y reject que por defecto cierran la ventana
     def accept(self):
-        login = self.Campo_User.text()
-        passwd = self.Campo_Passwd.text()
+        # login = self.Campo_User.text()
+        # passwd = self.Campo_Passwd.text()
+        login = "Jose.R"
+        passwd = "loleljuego_01"
         resultado = self.__controlador.validarUsuario(login, passwd)
 
         if resultado == "Experto en Imágenes":
@@ -73,10 +77,11 @@ class VentanaLogin(QDialog):
         menuSenales.show()
     
 class menu_Imagenes(QMainWindow):
-    def __init__(self,ppal=None):
+    def __init__(self, ppal=None):
         super().__init__(ppal)
-        loadUi("Menu_Experto_Imagenes.ui",self)
-        self.__controlador = None  # Inicializa el atributo __controlador
+        loadUi("Menu_Experto_Imagenes.ui", self)
+        self.__controlador = None
+        self.menu_dicom = None    # ← atributo para retener la ventana
         self.setup()
 
     def setup(self):
@@ -91,9 +96,12 @@ class menu_Imagenes(QMainWindow):
     
 
     def abrir_menu_DICOM(self):
-        menuDICOM = menu_DICOM(self)
+        if self.menu_dicom is None:
+            self.menu_dicom = menu_DICOM(self)
+            self.menu_dicom.setControlador(self.__controlador)
+            self.menu_dicom.setAttribute(Qt.WA_DeleteOnClose, False)  #  vita cierre inesperado
         self.hide()
-        menuDICOM.show()
+        self.menu_dicom.show()
 
     def setControlador(self, c):
         self.__controlador = c
@@ -419,13 +427,7 @@ f*col*can: {self.ima.size}
             else:
                 self.Label_Alert.setText("No hay ninguna imagen cargada.")
         except Exception as e:
-            self.Label_Alert.setText(f"Asegurese de elegir una imagen, que el kernel y las iteraciones sean numeros enteros")
-
-
-class menu_DICOM(QMainWindow):
-    def __init__(self,ppal=None):
-        super().__init__(ppal)
-        loadUi("DICOM_Experto_Imagenes.ui",self) 
+            self.Label_Alert.setText(f"Asegurese de elegir una imagen, que el kernel y las iteraciones sean numeros enteros") 
         
 class menu_Senales(QMainWindow):
     def __init__(self, ppal=None):
@@ -612,3 +614,148 @@ class menu_Senales(QMainWindow):
         self.canvas_csv = None
         self.close()
 
+class menu_DICOM(QMainWindow):
+    def __init__(self,ppal=None):
+        super().__init__(ppal)
+        loadUi("DICOM_Experto_Imagenes.ui",self)
+        self.__controlador = None  # Inicializa el atributo __controlador
+        self.setup()
+
+    def setup(self):
+        self.Button_Cargar_carpeta.clicked.connect(self.cargar_carpeta_DICOM)
+        self.Button_BD.clicked.connect(self.mostrar_lista_DICOM)
+        self.listView_Dicom.clicked.connect(self.mostrar_carpeta_DICOM)
+
+    
+    def setControlador(self, c):
+        self.__controlador = c
+
+    def cargar_carpeta_DICOM(self):
+        carpeta = QFileDialog.getExistingDirectory(
+            self,                                  # padre = ventana actual
+            "Seleccione la carpeta con archivos DICOM",
+            os.path.expanduser("~"),               # empieza en el HOME
+            QFileDialog.ShowDirsOnly
+        )
+
+        if not carpeta:           # usuario canceló
+            return
+
+        # --- Validación rápida: ¿tiene al menos un .dcm? ---
+        tiene_dcm = any(
+            fname.lower().endswith(".dcm")
+            for fname in os.listdir(carpeta)
+        )
+        if not tiene_dcm:
+            QMessageBox.warning(
+                self,
+                "Sin archivos DICOM",
+                "La carpeta seleccionada no contiene archivos .dcm"
+            )
+            return
+
+        # --- Guardar en BD ---
+        try:
+            self.__controlador.guardar_DICOM(carpeta)
+            QMessageBox.information(
+                self,
+                "Carpeta cargada",
+                f"Ruta almacenada:\n{carpeta}"
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"No se pudo guardar la ruta:\n{str(e)}"
+            )
+        
+    def mostrar_lista_DICOM(self):
+        list = self.__controlador.mostrar_lista_dicom()
+        model = QStringListModel()
+        model.setStringList(list)
+        self.listView_Dicom.setModel(model)
+
+    def mostrar_carpeta_DICOM(self, index):
+        # 1. Obtener nombre de carpeta elegido
+        nombre_carpeta = self.listView_Dicom.model().data(index, Qt.DisplayRole)
+
+        # 2. Consultar la BD para obtener la ruta
+        ruta = self.__controlador.obtener_ruta_dicom(nombre_carpeta)
+        if not ruta or not os.path.isdir(ruta):
+            QMessageBox.warning(self, "Carpeta no encontrada",
+                                f"No se encontró la ruta para '{nombre_carpeta}'.")
+            return
+
+        # 3. Cargar archivos DICOM
+        try:
+            self.slices = self.cargar_dicom(ruta)
+            self.volumen = np.stack([s.pixel_array for s in self.slices]).astype(np.int16)
+        except Exception as e:
+            QMessageBox.critical(self, "Error al cargar DICOMs", str(e))
+            return
+
+        # 4. Mostrar nombres de carpeta en la lista (opcional)
+        carpetas = [os.path.basename(os.path.dirname(ruta)), os.path.basename(ruta)]
+        self.model = QStringListModel()
+        self.model.setStringList(carpetas)
+        self.listView_Dicom.setModel(self.model)
+
+        # 5. Dimensiones
+        self.z, self.y, self.x = self.volumen.shape
+
+        # 6. Info paciente
+        self.mostrar_info_paciente(self.slices[0])
+
+        # 7. Configurar sliders
+        self.sliderSagital.setMaximum(self.z - 1)
+        self.sliderCoronal.setMaximum(self.x - 1)
+        self.sliderAxial.setMaximum(self.y - 1)
+
+        self.sliderSagital.valueChanged.connect(self.actualizar_sagital)
+        self.sliderCoronal.valueChanged.connect(self.actualizar_coronal)
+        self.sliderAxial.valueChanged.connect(self.actualizar_axial)
+
+        # 8. Imágenes iniciales
+        self.actualizar_sagital(self.z // 2)
+        self.actualizar_coronal(self.x // 2)
+        self.actualizar_axial(self.y // 2)
+
+    def cargar_dicom(self, carpeta):
+        archivos = [pydicom.dcmread(os.path.join(carpeta, f)) for f in os.listdir(carpeta) if f.endswith(".dcm")]
+        archivos.sort(key=lambda x: float(x.ImagePositionPatient[2]))
+        return archivos
+
+    def mostrar_info_paciente(self, ds):
+        nombre = ds.PatientName if 'PatientName' in ds else "Desconocido"
+        id_paciente = ds.PatientID if 'PatientID' in ds else "Desconocido"
+        edad = ds.PatientAge if 'PatientAge' in ds else "Desconocida"
+        sexo = ds.PatientSex if 'PatientSex' in ds else "Desconocido"
+
+        texto = f"Nombre: {nombre}\nID: {id_paciente}\nEdad: {edad}\nSexo: {sexo}"
+
+        self.label.setText(texto)
+
+    def mostrar_imagen(self, label_widget, imagen):
+        if imagen.ndim == 2:
+            imagen = cv2.normalize(imagen, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+            imagen = cv2.cvtColor(imagen, cv2.COLOR_GRAY2RGB)
+        alto, ancho, _ = imagen.shape
+        qimg = QImage(imagen.data, ancho, alto, 3 * ancho, QImage.Format_RGB888)
+        pixmap = QPixmap.fromImage(qimg).scaled(label_widget.width(), label_widget.height(), Qt.KeepAspectRatio)
+        label_widget.setPixmap(pixmap)
+
+    def actualizar_sagital(self, indice):
+        img = self.volumen[indice, :, :]
+        self.mostrar_imagen(self.label_sagital, img)
+
+    def actualizar_coronal(self, indice):
+        img = self.volumen[:, :, indice]
+        alto_deseado = 256
+        img = cv2.resize(img, (self.x, alto_deseado), interpolation=cv2.INTER_CUBIC)
+        self.mostrar_imagen(self.label_coronal, img)
+
+    def actualizar_axial(self, indice):
+        img = self.volumen[:, indice, :]
+        alto_deseado = 256
+        img = cv2.resize(img, (self.x, alto_deseado), interpolation=cv2.INTER_CUBIC)
+        self.mostrar_imagen(self.label_Axial, img)

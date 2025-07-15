@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>180</y>
+      <y>220</y>
       <width>311</width>
       <height>61</height>
      </rect>
@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>80</y>
+      <y>120</y>
       <width>301</width>
       <height>71</height>
      </rect>
@@ -42,6 +42,7 @@
       <pointsize>50</pointsize>
       <weight>75</weight>
       <bold>true</bold>
+      <underline>false</underline>
      </font>
     </property>
     <property name="text">
@@ -52,7 +53,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>150</y>
+      <y>190</y>
       <width>321</width>
       <height>16</height>
      </rect>
@@ -65,26 +66,13 @@
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>270</y>
+      <y>310</y>
       <width>311</width>
       <height>61</height>
      </rect>
     </property>
     <property name="text">
      <string>DICOM</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="Button_NIFTI">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>360</y>
-      <width>311</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>NIFTI</string>
     </property>
    </widget>
   </widget>

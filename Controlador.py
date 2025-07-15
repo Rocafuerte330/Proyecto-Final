@@ -121,6 +121,18 @@ class Coordinador():
         ima = cv2.imread(Ruta_ima)
         return ima
 
+
+    def guardar_DICOM(self, Ruta):
+        self.__modelo.guardar_DICOM(Ruta)
+
+    
+    def mostrar_lista_dicom(self):
+        return self.__modelo.mostrar_lista_dicom()
+    
+    def obtener_ruta_dicom(self, nombre):
+        return self.__modelo.obtener_ruta_dicom(nombre)
+
+
 def main():
     app = QApplication(sys.argv)
 

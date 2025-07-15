@@ -206,3 +206,32 @@ class BaseDatos(object):
 
     def obtener_datos_tabla(self):
         return self.dataframe.values.tolist(), self.dataframe.columns.tolist()
+    
+
+    def guardar_DICOM(self, Ruta):
+        listR = Ruta.split("/")
+        a = len(listR)
+        nombre_carpeta = listR[a-1]
+        sql_insert = f"""INSERT  INTO  DICOM_NIFTI (Nombre_Carpeta, Ruta_Dicom)
+                                    VALUES (%s, %s)"""
+        cursor.execute(sql_insert,(nombre_carpeta, Ruta ))
+        cnx.commit()
+    
+    def mostrar_lista_dicom(self):
+        list = []
+        sql = "SELECT Nombre_Carpeta FROM DICOM_NIFTI"
+        #  WHERE tipo_archivo IN (%s, %s, %s)
+        cursor.execute(sql)
+        # , ("jpg", "png", None)
+        results = cursor.fetchall()
+        for i in results:
+            a = f'{i}'.replace("('","")
+            b = f'{a}'.replace("',)","")
+            list.append(b)
+        return list
+    
+    def obtener_ruta_dicom(self, nombre_carpeta):
+        sql = "SELECT Ruta_Dicom FROM DICOM_NIFTI WHERE Nombre_Carpeta = %s"
+        cursor.execute(sql, (nombre_carpeta,))
+        result = cursor.fetchone()
+        return result[0] if result else None
