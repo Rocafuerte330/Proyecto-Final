@@ -37,10 +37,8 @@ class VentanaLogin(QDialog):
 # Si probamos veremos que la ventana se cerrará, algo que no queremos para el ejemplo, por lo que será mejor sobre-escribir los
 # métodos accept y reject que por defecto cierran la ventana
     def accept(self):
-        # login = self.Campo_User.text()
-        # passwd = self.Campo_Passwd.text()
-        login = "Jose.R"
-        passwd = "loleljuego_01"
+        login = self.Campo_User.text()
+        passwd = self.Campo_Passwd.text()
         resultado = self.__controlador.validarUsuario(login, passwd)
 
         if resultado == "Experto en Imágenes":
