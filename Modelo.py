@@ -220,9 +220,7 @@ class BaseDatos(object):
     def mostrar_lista_dicom(self):
         list = []
         sql = "SELECT Nombre_Carpeta FROM DICOM_NIFTI"
-        #  WHERE tipo_archivo IN (%s, %s, %s)
         cursor.execute(sql)
-        # , ("jpg", "png", None)
         results = cursor.fetchall()
         for i in results:
             a = f'{i}'.replace("('","")
