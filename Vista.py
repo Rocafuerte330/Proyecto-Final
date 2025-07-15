@@ -1,4 +1,4 @@
-import os, time, cv2, numpy as np, matplotlib.pyplot as plt
+import os, cv2, numpy as np
 import pydicom
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QStringListModel
@@ -37,13 +37,10 @@ class VentanaLogin(QDialog):
         self.Campo_User.setText("")
         self.Campo_Passwd.setText("")
 
-# Sobre escribir este método nos implica también reescribir el método closeEvent()
-
     def closeEvent(self, event):
         print("Cerrando ventana")
         self.close()
 
-#programamos un método para que pueda recibirlo
     def setControlador(self, c):
         self.__controlador = c
 
@@ -55,7 +52,7 @@ class VentanaLogin(QDialog):
     
     def abrir_menu_senales(self):
         menuSenales = menu_Senales(self)
-        menuSenales.setControlador(self.__controlador)  # ← NUNCA olvides esta línea
+        menuSenales.setControlador(self.__controlador) 
         self.hide()
         menuSenales.show()
     
@@ -64,7 +61,7 @@ class menu_Imagenes(QMainWindow):
         super().__init__(ppal)
         loadUi("Menu_Experto_Imagenes.ui", self)
         self.__controlador = None
-        self.menu_dicom = None    # ← atributo para retener la ventana
+        self.menu_dicom = None  
         self.setup()
 
     def setup(self):
@@ -82,7 +79,7 @@ class menu_Imagenes(QMainWindow):
         if self.menu_dicom is None:
             self.menu_dicom = menu_DICOM(self)
             self.menu_dicom.setControlador(self.__controlador)
-            self.menu_dicom.setAttribute(Qt.WA_DeleteOnClose, False)  #  vita cierre inesperado
+            self.menu_dicom.setAttribute(Qt.WA_DeleteOnClose, False) 
         self.hide()
         self.menu_dicom.show()
 
@@ -93,7 +90,7 @@ class menu_JPG_PNG(QMainWindow):
     def __init__(self,ppal=None):
         super().__init__(ppal)
         loadUi("JPG_PNG_Experto_Imagenes.ui",self) 
-        self.__controlador = None  # Inicializa el atributo __controlador
+        self.__controlador = None  
         self.setup()
 
     def setup(self):
@@ -191,7 +188,6 @@ class menu_JPG_PNG(QMainWindow):
                     if widget != label:
                         widget.deleteLater()
                 
-                # Asegurarse de que el QLabel se muestra correctamente
                 label.show()
                 
                 # Actualizar la información de la imagen
@@ -659,17 +655,14 @@ class menu_DICOM(QMainWindow):
         self.listView_Dicom.setModel(model)
 
     def mostrar_carpeta_DICOM(self, index):
-        # 1. Obtener nombre de carpeta elegido
         nombre_carpeta = self.listView_Dicom.model().data(index, Qt.DisplayRole)
 
-        # 2. Consultar la BD para obtener la ruta
         ruta = self.__controlador.obtener_ruta_dicom(nombre_carpeta)
         if not ruta or not os.path.isdir(ruta):
             QMessageBox.warning(self, "Carpeta no encontrada",
                                 f"No se encontró la ruta para '{nombre_carpeta}'.")
             return
 
-        # 3. Cargar archivos DICOM
         try:
             self.slices = self.cargar_dicom(ruta)
             self.volumen = np.stack([s.pixel_array for s in self.slices]).astype(np.int16)
@@ -677,19 +670,15 @@ class menu_DICOM(QMainWindow):
             QMessageBox.critical(self, "Error al cargar DICOMs", str(e))
             return
 
-        # 4. Mostrar nombres de carpeta en la lista (opcional)
         carpetas = [os.path.basename(os.path.dirname(ruta)), os.path.basename(ruta)]
         self.model = QStringListModel()
         self.model.setStringList(carpetas)
         self.listView_Dicom.setModel(self.model)
 
-        # 5. Dimensiones
         self.z, self.y, self.x = self.volumen.shape
 
-        # 6. Info paciente
         self.mostrar_info_paciente(self.slices[0])
 
-        # 7. Configurar sliders
         self.sliderSagital.setMaximum(self.z - 1)
         self.sliderCoronal.setMaximum(self.x - 1)
         self.sliderAxial.setMaximum(self.y - 1)
