@@ -1,27 +1,12 @@
-from PyQt5.QtWidgets import QDialog, QMainWindow, QFileDialog, QListView, QLabel, QTableWidgetItem
-from PyQt5.uic import loadUi
-from PyQt5 import QtWidgets
-from Modelo import *
-import time
-import cv2
-from PyQt5.QtGui import QIcon
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.pyplot as plt
-from PyQt5.QtCore import QStringListModel, Qt
-from PyQt5.QtGui import QImage, QPixmap
-import numpy as np
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import (
-    QWidget, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout,
-    QSpinBox, QDoubleSpinBox, QMessageBox, QComboBox
-)
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
-from matplotlib.figure import Figure
-import numpy as np
-from Modelo import BaseDatos
-import os
+import os, time, cv2, numpy as np, matplotlib.pyplot as plt
 import pydicom
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QStringListModel
+from PyQt5.QtGui import QIcon, QImage, QPixmap
+from PyQt5.QtWidgets import (QDialog, QMainWindow, QFileDialog, QLabel, QTableWidgetItem, QVBoxLayout, QMessageBox)
+from PyQt5.uic import loadUi
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 class VentanaLogin(QDialog):

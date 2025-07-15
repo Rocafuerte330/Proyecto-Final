@@ -1,5 +1,4 @@
 import mysql.connector
-import cv2
 from datetime import datetime 
 from scipy.io import loadmat
 import scipy.io as sio

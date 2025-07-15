@@ -2,8 +2,7 @@
 from Modelo import *
 from Vista import *
 import sys
-from PyQt5.QtWidgets import QApplication, QFileDialog
-import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QApplication
 
 # Link GitHub del proyecto -> https://github.com/Rocafuerte330/Proyecto-Final
 
