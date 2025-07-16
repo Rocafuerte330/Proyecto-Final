@@ -3,6 +3,10 @@ from Modelo import *
 from Vista import *
 import sys
 from PyQt5.QtWidgets import QApplication
+# Integrantes	Grupo de informática
+# Santiago Heredia Vásquez, Jose David Román, Mariana Zapata y Mauricio Cruz Durán
+# 04                      ,02               , 04             , 01	
+
 
 # Link GitHub del proyecto -> https://github.com/Rocafuerte330/Proyecto-Final
 
